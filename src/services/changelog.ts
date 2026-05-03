@@ -1,6 +1,6 @@
 import { prisma } from "../lib/prisma";
 
-export async function getAllChangeLogs() {
+export async function getAllChangelogs() {
   return prisma.changelog.findMany({
     include: {
       author: {
@@ -13,7 +13,7 @@ export async function getAllChangeLogs() {
   });
 }
 
-export async function getAllChangeLogById(id: number) {
+export async function getAllChangelogById(id: number) {
   const changelog = prisma.changelog.findUnique({
     where: { id },
     include: {
@@ -37,11 +37,18 @@ export async function createChangelog(
   authorId: number,
 ) {
   return prisma.changelog.create({
-    data: { title, version, description, authorId },
+    data: {
+      title,
+      version,
+      description,
+      author: {
+        connect: { id: authorId },
+      },
+    },
   });
 }
 
-export async function updateChangeLog(
+export async function updateChangelog(
   id: number,
   data: Partial<{ title: string; version: string; description: string }>,
 ) {
@@ -51,7 +58,7 @@ export async function updateChangeLog(
   });
 }
 
-export async function deleteChangeLog(id: number) {
+export async function deleteChangelog(id: number) {
   return prisma.changelog.delete({
     where: { id },
   });
