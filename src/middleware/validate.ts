@@ -6,7 +6,7 @@ export function validate(schema: z.ZodType) {
     const result = schema.safeParse(req.body);
     if (result.error) {
       return res.status(400).json({
-        error: result.error,
+        error: result.error.issues,
       });
     }
     next();
