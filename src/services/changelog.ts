@@ -59,6 +59,14 @@ export async function updateChangelog(
 }
 
 export async function deleteChangelog(id: number) {
+  const existing = prisma.changelog.findUnique({
+    where: { id },
+  });
+
+  if (!existing) {
+    throw new Error("Changelog not found");
+  }
+
   return prisma.changelog.delete({
     where: { id },
   });
