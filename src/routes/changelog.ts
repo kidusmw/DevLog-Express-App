@@ -13,7 +13,7 @@ const router = Router();
 router.get("/", getAllChangeLogs);
 router.get("/:id", gettAllChangeLogsById);
 router.post("/", authenticate, createChangeLog);
-router.patch("/:id", updateChangeLog);
-router.delete("/:id", deleteChangeLog);
+router.patch("/:id", authenticate, updateChangeLog);
+router.delete("/:id", authenticate, deleteChangeLog);
 
 export default router;
