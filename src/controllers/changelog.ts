@@ -7,6 +7,7 @@ import {
   deleteChangelog,
 } from "../services/changelog";
 import { AuthRequest } from "../middleware/auth";
+import { changelogQuerySchema } from "../types/changelog";
 
 export async function getAllChangeLogs(
   req: Request,
@@ -14,8 +15,9 @@ export async function getAllChangeLogs(
   next: NextFunction,
 ) {
   try {
-    const result = await getAllChangelogs();
-    res.status(200).json({ result });
+    const query = changelogQuerySchema.parse(req.query);
+    const { data, meta } = await getAllChangelogs(query);
+    res.status(200).json({ data, meta });
   } catch (err) {
     next(err);
   }

@@ -1,20 +1,52 @@
 import { prisma } from "../lib/prisma";
+import { ChangelogQuery } from "../types/changelog";
 
-export async function getAllChangelogs() {
-  return prisma.changelog.findMany({
-    include: {
-      author: {
-        select: { id: true, email: true },
+export async function getAllChangelogs({
+  page,
+  limit,
+  search,
+}: ChangelogQuery) {
+  const skip = (page - 1) * limit;
+
+  const where = search
+    ? {
+        OR: [
+          { title: { contains: search } },
+          { version: { contains: search } },
+        ],
+      }
+    : {};
+
+  const [changelogs, total] = await Promise.all([
+    prisma.changelog.findMany({
+      where,
+      skip,
+      take: limit,
+      include: {
+        author: {
+          select: { id: true, email: true },
+        },
       },
+      orderBy: {
+        createdAt: "desc",
+      },
+    }),
+    prisma.changelog.count({ where }),
+  ]);
+
+  return {
+    data: changelogs,
+    meta: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
     },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+  };
 }
 
 export async function getAllChangelogById(id: number) {
-  const changelog = prisma.changelog.findUnique({
+  const changelog = await prisma.changelog.findUnique({
     where: { id },
     include: {
       author: {
@@ -59,7 +91,7 @@ export async function updateChangelog(
 }
 
 export async function deleteChangelog(id: number) {
-  const existing = prisma.changelog.findUnique({
+  const existing = await prisma.changelog.findUnique({
     where: { id },
   });
 
